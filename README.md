@@ -4,16 +4,16 @@
 
 https://www.cncf.io/certification/cka/
 
-## CNCF CKA Curriculum v1.27:
+## CNCF CKA Curriculum v1.29:
 
-https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.27.pdf
+https://github.com/cncf/curriculum/blob/master/CKA_Curriculum_v1.29.pdf
 
 You will be evaluated on 5 topics around Kubernetes administration:
-- [Cluster Architecture, Installation & Configuration 25%](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/cluster-architecture-installation-configuration.md)
-- [Workloads & Scheduling 15%](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/workloads-scheduling.md)
-- [Services & Networking 20%](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/services-networking.md)
-- [Storage 10%](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/storage.md)
-- [Troubleshooting 30%](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/troubleshooting.md)
+- [Cluster Architecture, Installation & Configuration 25%](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/cluster-architecture-installation-configuration.md)
+- [Workloads & Scheduling 15%](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/workloads-scheduling.md)
+- [Services & Networking 20%](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/services-networking.md)
+- [Storage 10%](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/storage.md)
+- [Troubleshooting 30%](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/troubleshooting.md)
 
 ## Useful official documentation:
 

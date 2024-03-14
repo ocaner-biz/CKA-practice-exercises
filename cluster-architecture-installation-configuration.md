@@ -9,9 +9,9 @@ Doc: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 <details><summary>Solution</summary>
 <p>
 
-If you don't have cluster nodes yet, check the terraform deployment from below: [Provision underlying infrastructure to deploy a Kubernetes cluster](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/cluster-architecture-installation-configuration.md#provision-underlying-infrastructure-to-deploy-a-kubernetes-cluster)
+If you don't have cluster nodes yet, check the terraform deployment from below: [Provision underlying infrastructure to deploy a Kubernetes cluster](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/cluster-architecture-installation-configuration.md#provision-underlying-infrastructure-to-deploy-a-kubernetes-cluster)
 
-Installation from [scratch](https://github.com/kelseyhightower/kubernetes-the-hard-way/) is too time consuming. We will be using KubeADM (v1.27) to install the Kubernetes cluster.
+Installation from [scratch](https://github.com/kelseyhightower/kubernetes-the-hard-way/) is too time consuming. We will be using KubeADM (v1.29) to install the Kubernetes cluster.
 
 ### Install container runtime
 
@@ -20,7 +20,7 @@ Installation from [scratch](https://github.com/kelseyhightower/kubernetes-the-ha
 
 Doc: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 
-Do this on all three nodes (here is the path to the script https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/containerd-install.sh):
+Do this on all three nodes (here is the path to the script https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/containerd-install.sh):
 
 ```bash
 # containerd preinstall configuration
@@ -90,11 +90,14 @@ Do this on all three nodes:
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl
 
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.27/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+export K8S_VERSION=1.29
+export K8S_PKG_VERSION=${K8S_VERSION}.0-1.1
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 sudo apt-get update
-sudo apt-get install -y kubelet=1.27.5-1.1 kubeadm=1.27.5-1.1 kubectl=1.27.5-1.1
+sudo apt-get install -y kubelet=${K8S_PKG_VERSION} kubeadm=${K8S_PKG_VERSION} kubectl=${K8S_PKG_VERSION}
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
@@ -112,7 +115,7 @@ Make sure the nodes have different hostnames.
 
 On controlplane node:
 ```bash
-sudo kubeadm init --kubernetes-version=1.27.5 --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --kubernetes-version=1.29.0 --pod-network-cidr=10.244.0.0/16
 ```
 
 Run the output of the init command on the other nodes:
@@ -143,9 +146,9 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 ```bash
 kubectl get nodes
 NAME               STATUS   ROLES           AGE     VERSION
-k8s-controlplane   Ready    control-plane   3m29s   v1.27.5
-k8s-node-1         Ready    <none>          114s    v1.27.5
-k8s-node-2         Ready    <none>          77s     v1.27.5
+k8s-controlplane   Ready    control-plane   3m29s   v1.29.0
+k8s-node-1         Ready    <none>          114s    v1.29.0
+k8s-node-2         Ready    <none>          77s     v1.29.0
 ```
 
 </p>
@@ -161,32 +164,32 @@ k8s-node-2         Ready    <none>          77s     v1.27.5
 
 Doc: https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
 
-After installing Kubernetes v1.27 here: [install](https://github.com/alijahnas/CKA-practice-exercises/blob/CKA-v1.27/cluster-architecture-installation-configuration.md#use-kubeadm-to-install-a-basic-cluster)
+After installing Kubernetes v1.29 here: [install](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/cluster-architecture-installation-configuration.md#use-kubeadm-to-install-a-basic-cluster)
 
-We will now upgrade the cluster to v1.28.
+We will now upgrade the cluster to v1.30.
 
 On controlplane node:
 
 ```bash
-# Add 1.28 repository
-sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" >> /etc/apt/sources.list.d/kubernetes.list'
+# Add 1.30 repository
+sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/prerelease:/v1.30/deb/ /" >> /etc/apt/sources.list.d/kubernetes.list'
 
 # Upgrade kubeadm
 sudo apt-mark unhold kubeadm
-sudo apt-get update && sudo apt-get install -y kubeadm=1.28.1-1.1
+sudo apt-get update && sudo apt-get install -y kubeadm=1.30.0~beta.0-1.1
 sudo apt-mark hold kubeadm
 
 # Upgrade controlplane node
 kubectl drain k8s-controlplane --ignore-daemonsets
-sudo kubeadm upgrade plan
-sudo kubeadm upgrade apply v1.28.1
+sudo kubeadm upgrade plan --allow-experimental-upgrades
+sudo kubeadm upgrade apply v1.30.0-beta.0 --allow-experimental-upgrades
 
 # Update Flannel
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
 # Upgrade kubelet and kubectl
 sudo apt-mark unhold kubelet kubectl
-sudo apt-get update && sudo apt-get install -y kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
+sudo apt-get update && sudo apt-get install -y kubelet=1.30.0~beta.0-1.1 kubectl=1.30.0~beta.0-1.1
 sudo apt-mark hold kubelet kubectl
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
@@ -198,12 +201,12 @@ kubectl uncordon k8s-controlplane
 On worker nodes:
 
 ```bash
-# Add 1.28 repository
-sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" >> /etc/apt/sources.list.d/kubernetes.list'
+# Add 1.30 repository
+sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/prerelease:/v1.30/deb/ /" >> /etc/apt/sources.list.d/kubernetes.list'
 
 # Upgrade kubeadm
 sudo apt-mark unhold kubeadm
-sudo apt-get update && sudo apt-get install -y kubeadm=1.28.1-1.1
+sudo apt-get update && sudo apt-get install -y kubeadm=1.30.0~beta.0-1.1
 sudo apt-mark hold kubeadm
 
 # Upgrade the other node
@@ -212,7 +215,7 @@ sudo kubeadm upgrade node
 
 # Upgrade kubelet and kubectl
 sudo apt-mark unhold kubelet kubectl
-sudo apt-get update && sudo apt-get install -y kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
+sudo apt-get update && sudo apt-get install -y kubelet=1.30.0~beta.0-1.1 kubectl=1.30.0~beta.0-1.1
 sudo apt-mark hold kubelet kubectl
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
@@ -221,14 +224,14 @@ sudo systemctl restart kubelet
 kubectl uncordon k8s-node-1
 ```
 
-Verify that the nodes are upgraded to v1.28.1:
+Verify that the nodes are upgraded to v1.30.0-beta.0:
 
 ```bash
 kubectl get nodes
-NAME               STATUS                     ROLES           AGE   VERSION
-k8s-controlplane   Ready                      control-plane   15m   v1.28.1
-k8s-node-1         Ready,SchedulingDisabled   <none>          13m   v1.28.1
-k8s-node-2         Ready,SchedulingDisabled   <none>          13m   v1.28.1
+NAME               STATUS   ROLES           AGE   VERSION
+k8s-controlplane   Ready    control-plane   86m   v1.30.0-beta.0
+k8s-node-1         Ready    <none>          70m   v1.30.0-beta.0
+k8s-node-2         Ready    <none>          68m   v1.30.0-beta.0
 ```
 
 </p>
@@ -280,10 +283,10 @@ OS description:
 ```bash
 $ lsb_release -a
 No LSB modules are available.
-Distributor ID:	Ubuntu
-Description:	Ubuntu 22.04.3 LTS
-Release:	22.04
-Codename:	jammy
+Distributor ID: Ubuntu
+Description:    Ubuntu 22.04.4 LTS
+Release:        22.04
+Codename:       jammy
 ```
 
 We will use a local libvirt/KVM baremetal node with terraform (v1.2.5) to provision the three node cluster described above.
@@ -291,7 +294,7 @@ We will use a local libvirt/KVM baremetal node with terraform (v1.2.5) to provis
 ```bash
 mkdir terraform
 cd terraform
-wget https://raw.githubusercontent.com/alijahnas/CKA-practice-exercises/CKA-v1.27/terraform/cluster-infra.tf
+wget https://raw.githubusercontent.com/ocaner-biz/CKA-practice-exercises/CKA-v1.29/terraform/cluster-infra.tf
 terraform init
 terraform plan
 terraform apply
@@ -316,29 +319,29 @@ Check the version of your etcd cluster depending on how you installed it.
 
 ```bash
 kubectl exec -it -n kube-system etcd-k8s-controlplane -- etcd --version
-etcd Version: 3.5.3
-Git SHA: 0452feec7
-Go Version: go1.16.15
+etcd Version: 3.5.12
+Git SHA: e7b3bb6cc
+Go Version: go1.20.13
 Go OS/Arch: linux/amd64
 ```
 
 ```bash
 # Download etcd client
-wget https://github.com/etcd-io/etcd/releases/download/v3.5.3/etcd-v3.5.3-linux-amd64.tar.gz
-tar xzvf etcd-v3.5.3-linux-amd64.tar.gz
-sudo mv etcd-v3.5.3-linux-amd64/etcdctl /usr/local/bin
-sudo mv etcd-v3.5.3-linux-amd64/etcdutl /usr/local/bin
+wget https://github.com/etcd-io/etcd/releases/download/v3.5.12/etcd-v3.5.12-linux-amd64.tar.gz
+tar xzvf etcd-v3.5.12-linux-amd64.tar.gz
+sudo mv etcd-v3.5.12-linux-amd64/etcdctl /usr/local/bin
+sudo mv etcd-v3.5.12-linux-amd64/etcdutl /usr/local/bin
 
 # save etcd snapshot
 sudo etcdctl snapshot save --endpoints 172.16.1.11:2379 snapshot.db --cacert /etc/kubernetes/pki/etcd/server.crt --cert /etc/kubernetes/pki/etcd/ca.crt --key /etc/kubernetes/pki/etcd/ca.key
 
 # View the snapshot
 sudo etcdutl --write-out=table snapshot status snapshot.db 
-+---------+----------+------------+------------+
-|  HASH   | REVISION | TOTAL KEYS | TOTAL SIZE |
-+---------+----------+------------+------------+
-| 74116f1 |     2616 |       2639 |     4.5 MB |
-+---------+----------+------------+------------+
++----------+----------+------------+------------+
+|   HASH   | REVISION | TOTAL KEYS | TOTAL SIZE |
++----------+----------+------------+------------+
+| e91887cf |    11938 |       1357 |     3.7 MB |
++----------+----------+------------+------------+
 ```
 
 </p>

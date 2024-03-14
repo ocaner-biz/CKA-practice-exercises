@@ -11,6 +11,16 @@ provider "libvirt" {
   uri = "qemu:///system"
 }
 
+variable "ssh_public_key" {
+	type = string
+	default = "~/.ssh/sol.key.pub"
+}
+
+variable "ssh_private_key" {
+	type = string
+	default = "~/.ssh/sol.key"
+}
+
 resource "libvirt_volume" "ubuntu_22_04_cloud" {
   name   = "ubuntu22.04.qcow2"
   pool   = "default"
@@ -39,7 +49,7 @@ users:
     shell: /bin/bash
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh-authorized-keys:
-      - ${file("~/.ssh/sol.key.pub")}
+      - ${file("${var.ssh_public_key}")}
 growpart:
   mode: auto
   devices: ['/']
@@ -61,7 +71,7 @@ users:
     shell: /bin/bash
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh-authorized-keys:
-      - ${file("~/.ssh/sol.key.pub")}
+      - ${file("${var.ssh_public_key}")}
 growpart:
   mode: auto
   devices: ['/']
@@ -83,7 +93,7 @@ users:
     shell: /bin/bash
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh-authorized-keys:
-      - ${file("~/.ssh/sol.key.pub")}
+      - ${file("${var.ssh_public_key}")}
 growpart:
   mode: auto
   devices: ['/']
@@ -137,7 +147,7 @@ resource "libvirt_domain" "k8s-controlplane" {
     type     = "ssh"
     user     = "ubuntu"
     host     = self.network_interface[0].addresses[0]
-    private_key = "${file("~/.ssh/sol.key")}"
+    private_key = "${file("${var.ssh_private_key}")}"
   }
 
   provisioner "remote-exec" {
@@ -183,7 +193,7 @@ resource "libvirt_domain" "k8s-node-1" {
     type     = "ssh"
     user     = "ubuntu"
     host     = self.network_interface[0].addresses[0]
-    private_key = "${file("~/.ssh/sol.key")}"
+    private_key = "${file("${var.ssh_private_key}")}"
   }
 
   provisioner "remote-exec" {
@@ -229,7 +239,7 @@ resource "libvirt_domain" "k8s-node-2" {
     type     = "ssh"
     user     = "ubuntu"
     host     = self.network_interface[0].addresses[0]
-    private_key = "${file("~/.ssh/sol.key")}"
+    private_key = "${file("${var.ssh_private_key}")}"
   }
 
   provisioner "remote-exec" {
