@@ -9,9 +9,9 @@ Doc: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 <details><summary>Solution</summary>
 <p>
 
-If you don't have cluster nodes yet, check the terraform deployment from below: [Provision underlying infrastructure to deploy a Kubernetes cluster](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/cluster-architecture-installation-configuration.md#provision-underlying-infrastructure-to-deploy-a-kubernetes-cluster)
+If you don't have cluster nodes yet, check the terraform deployment from below: [Provision underlying infrastructure to deploy a Kubernetes cluster](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.30/cluster-architecture-installation-configuration.md#provision-underlying-infrastructure-to-deploy-a-kubernetes-cluster)
 
-Installation from [scratch](https://github.com/kelseyhightower/kubernetes-the-hard-way/) is too time consuming. We will be using KubeADM (v1.29) to install the Kubernetes cluster.
+Installation from [scratch](https://github.com/kelseyhightower/kubernetes-the-hard-way/) is too time consuming. We will be using KubeADM (v1.30) to install the Kubernetes cluster.
 
 ### Install container runtime
 
@@ -20,7 +20,7 @@ Installation from [scratch](https://github.com/kelseyhightower/kubernetes-the-ha
 
 Doc: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 
-Do this on all three nodes (here is the path to the script https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/containerd-install.sh):
+Do this on all three nodes (here is the path to the script https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.30/containerd-install.sh):
 
 ```bash
 # containerd preinstall configuration
@@ -90,8 +90,8 @@ Do this on all three nodes:
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl
 
-export K8S_VERSION=1.29
-export K8S_PKG_VERSION=${K8S_VERSION}.0-1.1
+export K8S_VERSION=1.30
+export K8S_PKG_VERSION=${K8S_VERSION}.4-1.1
 
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
@@ -115,7 +115,7 @@ Make sure the nodes have different hostnames.
 
 On controlplane node:
 ```bash
-sudo kubeadm init --kubernetes-version=1.29.0 --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --kubernetes-version=1.30.4 --pod-network-cidr=10.244.0.0/16
 ```
 
 Run the output of the init command on the other nodes:
@@ -146,9 +146,9 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 ```bash
 kubectl get nodes
 NAME               STATUS   ROLES           AGE     VERSION
-k8s-controlplane   Ready    control-plane   3m29s   v1.29.0
-k8s-node-1         Ready    <none>          114s    v1.29.0
-k8s-node-2         Ready    <none>          77s     v1.29.0
+k8s-controlplane   Ready    control-plane   3m29s   v1.30.4
+k8s-node-1         Ready    <none>          114s    v1.30.4
+k8s-node-2         Ready    <none>          77s     v1.30.4
 ```
 
 </p>
@@ -164,32 +164,32 @@ k8s-node-2         Ready    <none>          77s     v1.29.0
 
 Doc: https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
 
-After installing Kubernetes v1.29 here: [install](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.29/cluster-architecture-installation-configuration.md#use-kubeadm-to-install-a-basic-cluster)
+After installing Kubernetes v1.30 here: [install](https://github.com/ocaner-biz/CKA-practice-exercises/blob/CKA-v1.30/cluster-architecture-installation-configuration.md#use-kubeadm-to-install-a-basic-cluster)
 
-We will now upgrade the cluster to v1.30.
+We will now upgrade the cluster to v1.31.
 
 On controlplane node:
 
 ```bash
-# Add 1.30 repository
-sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/prerelease:/v1.30/deb/ /" >> /etc/apt/sources.list.d/kubernetes.list'
+# Add 1.31 repository
+sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" >> /etc/apt/sources.list.d/kubernetes.list'
 
 # Upgrade kubeadm
 sudo apt-mark unhold kubeadm
-sudo apt-get update && sudo apt-get install -y kubeadm=1.30.0~beta.0-1.1
+sudo apt-get update && sudo apt-get install -y kubeadm=1.31.0-1.1
 sudo apt-mark hold kubeadm
 
 # Upgrade controlplane node
 kubectl drain k8s-controlplane --ignore-daemonsets
 sudo kubeadm upgrade plan --allow-experimental-upgrades
-sudo kubeadm upgrade apply v1.30.0-beta.0 --allow-experimental-upgrades
+sudo kubeadm upgrade apply v1.31.0 --allow-experimental-upgrades
 
 # Update Flannel
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
 # Upgrade kubelet and kubectl
 sudo apt-mark unhold kubelet kubectl
-sudo apt-get update && sudo apt-get install -y kubelet=1.30.0~beta.0-1.1 kubectl=1.30.0~beta.0-1.1
+sudo apt-get update && sudo apt-get install -y kubelet=1.31.0-1.1 kubectl=1.31.0-1.1
 sudo apt-mark hold kubelet kubectl
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
@@ -206,7 +206,7 @@ sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] h
 
 # Upgrade kubeadm
 sudo apt-mark unhold kubeadm
-sudo apt-get update && sudo apt-get install -y kubeadm=1.30.0~beta.0-1.1
+sudo apt-get update && sudo apt-get install -y kubeadm=1.31.0-1.1
 sudo apt-mark hold kubeadm
 
 # Upgrade the other node
@@ -215,7 +215,7 @@ sudo kubeadm upgrade node
 
 # Upgrade kubelet and kubectl
 sudo apt-mark unhold kubelet kubectl
-sudo apt-get update && sudo apt-get install -y kubelet=1.30.0~beta.0-1.1 kubectl=1.30.0~beta.0-1.1
+sudo apt-get update && sudo apt-get install -y kubelet=1.31.0-1.1 kubectl=1.31.0-1.1
 sudo apt-mark hold kubelet kubectl
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
@@ -224,14 +224,14 @@ sudo systemctl restart kubelet
 kubectl uncordon k8s-node-1
 ```
 
-Verify that the nodes are upgraded to v1.30.0-beta.0:
+Verify that the nodes are upgraded to v1.31.0:
 
 ```bash
 kubectl get nodes
 NAME               STATUS   ROLES           AGE   VERSION
-k8s-controlplane   Ready    control-plane   86m   v1.30.0-beta.0
-k8s-node-1         Ready    <none>          70m   v1.30.0-beta.0
-k8s-node-2         Ready    <none>          68m   v1.30.0-beta.0
+k8s-controlplane   Ready    control-plane   86m   v1.31.0
+k8s-node-1         Ready    <none>          70m   v1.31.0
+k8s-node-2         Ready    <none>          68m   v1.31.0
 ```
 
 </p>
@@ -294,7 +294,7 @@ We will use a local libvirt/KVM baremetal node with terraform (v1.2.5) to provis
 ```bash
 mkdir terraform
 cd terraform
-wget https://raw.githubusercontent.com/ocaner-biz/CKA-practice-exercises/CKA-v1.29/terraform/cluster-infra.tf
+wget https://raw.githubusercontent.com/ocaner-biz/CKA-practice-exercises/CKA-v1.30/terraform/cluster-infra.tf
 terraform init
 terraform plan
 terraform apply

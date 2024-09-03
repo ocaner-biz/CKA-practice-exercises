@@ -50,8 +50,8 @@ sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.to
 # Restart containerd
 sudo systemctl restart containerd
 
-export K8S_VERSION=1.29
-export K8S_PKG_VERSION=${K8S_VERSION}.0-1.1
+export K8S_VERSION=1.30
+export K8S_PKG_VERSION=${K8S_VERSION}.4-1.1
 
 # Install Kubeadm
 sudo apt-get update
